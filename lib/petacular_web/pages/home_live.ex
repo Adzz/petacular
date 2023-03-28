@@ -4,10 +4,15 @@ defmodule PetacularWeb.HomeLive do
   """
   use PetacularWeb, :live_view
   require Logger
+  alias Petacular.Repo
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    default_assigns = %{
+      create_form: Phoenix.Component.to_form(Petacular.Pet.create_changeset(%{}))
+    }
+
+    {:ok, assign(socket, default_assigns)}
   end
 
   @impl true
@@ -16,6 +21,13 @@ defmodule PetacularWeb.HomeLive do
     <h1 class="font-semibold text-3xl mb-4">Pets</h1>
     <PetacularWeb.CoreComponents.modal id="create_modal">
       <h2>Add a pet.</h2>
+
+      <PetacularWeb.CoreComponents.simple_form for={@create_form} phx-submit="create_pet">
+        <PetacularWeb.CoreComponents.input field={@create_form[:name]} label="Name" />
+        <:actions>
+          <PetacularWeb.CoreComponents.button>Save</PetacularWeb.CoreComponents.button>
+        </:actions>
+      </PetacularWeb.CoreComponents.simple_form>
     </PetacularWeb.CoreComponents.modal>
     <PetacularWeb.CoreComponents.button phx-click={
       PetacularWeb.CoreComponents.show_modal("create_modal")
@@ -23,6 +35,18 @@ defmodule PetacularWeb.HomeLive do
       Add New Pet +
     </PetacularWeb.CoreComponents.button>
     """
+  end
+
+  @impl true
+  def handle_event("create_pet", %{"pet" => params}, socket) do
+    case Repo.insert(Petacular.Pet.create_changeset(params)) do
+      {:error, message} ->
+        {:noreply, socket |> put_flash(:error, inspect(message))}
+
+      {:ok, _} ->
+        new_assigns = %{}
+        {:noreply, assign(socket, new_assigns)}
+    end
   end
 
   @impl true
