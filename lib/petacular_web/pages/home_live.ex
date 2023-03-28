@@ -9,6 +9,7 @@ defmodule PetacularWeb.HomeLive do
   @impl true
   def mount(_params, _session, socket) do
     default_assigns = %{
+      pets: Repo.all(Petacular.Pet),
       create_form: Phoenix.Component.to_form(Petacular.Pet.create_changeset(%{}))
     }
 
@@ -19,6 +20,13 @@ defmodule PetacularWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <h1 class="font-semibold text-3xl mb-4">Pets</h1>
+
+    <div class="w-50 mb-4">
+      <%= for pet <- @pets do %>
+        <p>Name: <span class="font-semibold"><%= pet.name %></span></p>
+      <% end %>
+    </div>
+
     <PetacularWeb.CoreComponents.modal id="create_modal">
       <h2>Add a pet.</h2>
 
@@ -44,7 +52,10 @@ defmodule PetacularWeb.HomeLive do
         {:noreply, socket |> put_flash(:error, inspect(message))}
 
       {:ok, _} ->
-        new_assigns = %{}
+        new_assigns = %{
+          pets: Repo.all(Petacular.Pet)
+        }
+
         {:noreply, assign(socket, new_assigns)}
     end
   end
