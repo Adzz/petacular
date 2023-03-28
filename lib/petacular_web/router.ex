@@ -17,7 +17,7 @@ defmodule PetacularWeb.Router do
   scope "/", PetacularWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live("/", HomeLive)
   end
 
   # Other scopes may use custom stacks.
