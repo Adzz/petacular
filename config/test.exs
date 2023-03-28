@@ -5,13 +5,16 @@ import Config
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-config :petacular, Petacular.Repo,
-  username: "postgres",
-  password: "postgres",
+config(:petacular, Petacular.Repo,
+  username: "petacular_user",
+  password: "petacular_123",
   hostname: "localhost",
-  database: "petacular_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+  database: "petacular_test",
+  show_sensitive_data_on_connection_error: true,
+  port: 54321,
+  pool_size: 10,
+  pool: Ecto.Adapters.SQL.Sandbox
+)
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

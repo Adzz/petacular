@@ -1,14 +1,15 @@
 import Config
 
 # Configure your database
-config :petacular, Petacular.Repo,
-  username: "postgres",
-  password: "postgres",
+config(:petacular, Petacular.Repo,
+  username: "petacular_user",
+  password: "petacular_123",
   hostname: "localhost",
   database: "petacular_dev",
-  stacktrace: true,
   show_sensitive_data_on_connection_error: true,
+  port: 54321,
   pool_size: 10
+)
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
