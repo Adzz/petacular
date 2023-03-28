@@ -14,7 +14,12 @@ defmodule PetacularWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <h1 class="font-semibold text-3xl mb-4">Pets</h1>
-    <PetacularWeb.CoreComponents.button>
+    <PetacularWeb.CoreComponents.modal id="create_modal">
+      <h2>Add a pet.</h2>
+    </PetacularWeb.CoreComponents.modal>
+    <PetacularWeb.CoreComponents.button phx-click={
+      PetacularWeb.CoreComponents.show_modal("create_modal")
+    }>
       Add New Pet +
     </PetacularWeb.CoreComponents.button>
     """
