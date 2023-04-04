@@ -37,6 +37,8 @@ defmodule PetacularWeb.Router do
     scope "/dev" do
       pipe_through :browser
 
+      live("/storybook", PetacularWeb.Pages.StoryBookLive, :show)
+
       live_dashboard "/dashboard", metrics: PetacularWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
