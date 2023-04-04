@@ -52,11 +52,12 @@ defmodule PetacularWeb.HomeLive do
         {:noreply, socket |> put_flash(:error, inspect(message))}
 
       {:ok, _} ->
-        new_assigns = %{
-          pets: Repo.all(Petacular.Pet)
-        }
+        socket =
+          socket
+          |> assign(%{pets: Repo.all(Petacular.Pet)})
+          |> push_event("close_modal", %{to: "#close_modal_btn_create_modal"})
 
-        {:noreply, assign(socket, new_assigns)}
+        {:noreply, socket}
     end
   end
 

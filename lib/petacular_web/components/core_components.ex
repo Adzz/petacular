@@ -70,6 +70,8 @@ defmodule PetacularWeb.CoreComponents do
             >
               <div class="absolute top-6 right-5">
                 <button
+                  id={"close_modal_btn_" <> @id}
+                  phx-hook="ModalCloser"
                   phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
                   class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
