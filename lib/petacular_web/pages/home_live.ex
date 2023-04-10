@@ -10,6 +10,7 @@ defmodule PetacularWeb.HomeLive do
   def mount(_params, _session, socket) do
     default_assigns = %{
       pets: Repo.all(Petacular.Pet),
+      edit_form: Phoenix.Component.to_form(Petacular.Pet.create_changeset(%{})),
       create_form: Phoenix.Component.to_form(Petacular.Pet.create_changeset(%{}))
     }
 
@@ -23,9 +24,32 @@ defmodule PetacularWeb.HomeLive do
 
     <div class="w-50 mb-4">
       <%= for pet <- @pets do %>
-        <p>Name: <span class="font-semibold"><%= pet.name %></span></p>
+        <div class="flex">
+          <button phx-click={open_edit_modal(pet.id)}>
+            <PetacularWeb.CoreComponents.icon name="hero-pencil-square-solid" class="mr-2" />
+          </button>
+          <p>Name: <span class="font-semibold"><%= pet.name %></span></p>
+        </div>
       <% end %>
     </div>
+
+    <PetacularWeb.CoreComponents.modal id="edit_modal">
+      <h2>Edit a pet.</h2>
+
+      <PetacularWeb.CoreComponents.simple_form for={@edit_form} phx-submit="edit_pet">
+        <PetacularWeb.CoreComponents.input
+          label="Name"
+          id="edit_name"
+          field={@edit_form[:name]}
+          value={@edit_form[:name].value}
+        />
+        <:actions>
+          <PetacularWeb.CoreComponents.button>
+            Save
+          </PetacularWeb.CoreComponents.button>
+        </:actions>
+      </PetacularWeb.CoreComponents.simple_form>
+    </PetacularWeb.CoreComponents.modal>
 
     <PetacularWeb.CoreComponents.modal id="create_modal">
       <h2>Add a pet.</h2>
@@ -37,12 +61,19 @@ defmodule PetacularWeb.HomeLive do
         </:actions>
       </PetacularWeb.CoreComponents.simple_form>
     </PetacularWeb.CoreComponents.modal>
+
     <PetacularWeb.CoreComponents.button phx-click={
       PetacularWeb.CoreComponents.show_modal("create_modal")
     }>
       Add New Pet +
     </PetacularWeb.CoreComponents.button>
     """
+  end
+
+  defp open_edit_modal(pet_id) do
+    %JS{}
+    |> JS.push("open_edit_modal", value: %{pet_id: pet_id})
+    |> PetacularWeb.CoreComponents.show_modal("edit_modal")
   end
 
   @impl true
@@ -52,13 +83,29 @@ defmodule PetacularWeb.HomeLive do
         {:noreply, socket |> put_flash(:error, inspect(message))}
 
       {:ok, _} ->
+        new_assigns = %{
+          pets: Repo.all(Petacular.Pet),
+          create_form: Phoenix.Component.to_form(Petacular.Pet.create_changeset(%{}))
+        }
+
         socket =
           socket
-          |> assign(%{pets: Repo.all(Petacular.Pet)})
+          |> assign(new_assigns)
           |> push_event("close_modal", %{to: "#close_modal_btn_create_modal"})
 
         {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_event("open_edit_modal", %{"pet_id" => id}, socket) do
+    pet = Enum.find(socket.assigns.pets, &(&1.id == id))
+
+    new_assigns = %{
+      edit_form: Phoenix.Component.to_form(Petacular.Pet.edit_changeset(%{}, pet))
+    }
+
+    {:noreply, assign(socket, new_assigns)}
   end
 
   @impl true

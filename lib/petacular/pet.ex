@@ -12,4 +12,10 @@ defmodule Petacular.Pet do
     |> Ecto.Changeset.cast(attrs, [:name])
     |> Ecto.Changeset.validate_required([:name])
   end
+
+  def edit_changeset(attrs, %__MODULE__{} = struct) do
+    struct
+    |> Ecto.Changeset.cast(attrs, [:name])
+    |> Ecto.Changeset.validate_required([:name])
+  end
 end
