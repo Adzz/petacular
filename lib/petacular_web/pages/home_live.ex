@@ -25,7 +25,7 @@ defmodule PetacularWeb.HomeLive do
     <div class="w-50 mb-4">
       <%= for pet <- @pets do %>
         <div class="flex">
-          <button phx-click={open_edit_modal(pet.id)}>
+          <button phx-click={open_edit_modal(pet.id, pet.name)}>
             <PetacularWeb.CoreComponents.icon name="hero-pencil-square-solid" class="mr-2" />
           </button>
           <p>Name: <span class="font-semibold"><%= pet.name %></span></p>
@@ -37,9 +37,10 @@ defmodule PetacularWeb.HomeLive do
       <h2>Edit a pet.</h2>
 
       <PetacularWeb.CoreComponents.simple_form for={@edit_form} phx-submit="edit_pet">
+        <%= Phoenix.HTML.Form.hidden_input(@edit_form, :id, id: "edit_pet_id_input") %>
         <PetacularWeb.CoreComponents.input
-          label="Name"
           id="edit_name"
+          label="Name"
           field={@edit_form[:name]}
           value={@edit_form[:name].value}
         />
@@ -70,9 +71,11 @@ defmodule PetacularWeb.HomeLive do
     """
   end
 
-  defp open_edit_modal(pet_id) do
+  defp open_edit_modal(pet_id, pet_name) do
     %JS{}
     |> JS.push("open_edit_modal", value: %{pet_id: pet_id})
+    |> JS.set_attribute({"value", pet_name}, to: "#edit_name")
+    |> JS.set_attribute({"value", pet_id}, to: "#edit_pet_id_input")
     |> PetacularWeb.CoreComponents.show_modal("edit_modal")
   end
 
@@ -92,6 +95,29 @@ defmodule PetacularWeb.HomeLive do
           socket
           |> assign(new_assigns)
           |> push_event("close_modal", %{to: "#close_modal_btn_create_modal"})
+
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("edit_pet", %{"pet" => %{"id" => id} = params}, socket) do
+    pet = Enum.find(socket.assigns.pets, &(&1.id == String.to_integer(id)))
+
+    case Repo.insert(Petacular.Pet.edit_changeset(params, pet)) do
+      {:error, message} ->
+        {:noreply, socket |> put_flash(:error, inspect(message))}
+
+      {:ok, _} ->
+        new_assigns = %{
+          pets: Repo.all(Petacular.Pet),
+          edit_form: Phoenix.Component.to_form(Petacular.Pet.create_changeset(%{}))
+        }
+
+        socket =
+          socket
+          |> assign(new_assigns)
+          |> push_event("close_modal", %{to: "#close_modal_btn_edit_modal"})
 
         {:noreply, socket}
     end
