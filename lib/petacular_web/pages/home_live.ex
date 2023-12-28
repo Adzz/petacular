@@ -76,7 +76,10 @@ defmodule PetacularWeb.HomeLive do
     |> JS.push("open_edit_modal", value: %{pet_id: pet_id})
     |> JS.set_attribute({"value", pet_name}, to: "#edit_name")
     |> JS.set_attribute({"value", pet_id}, to: "#edit_pet_id_input")
-    |> PetacularWeb.CoreComponents.show_modal("edit_modal")
+    |> PetacularWeb.CoreComponents.show_modal_focus_on(
+      "edit_modal",
+      "close_modal_btn_create_modal"
+    )
   end
 
   @impl true
@@ -104,7 +107,7 @@ defmodule PetacularWeb.HomeLive do
   def handle_event("edit_pet", %{"pet" => %{"id" => id} = params}, socket) do
     pet = Enum.find(socket.assigns.pets, &(&1.id == String.to_integer(id)))
 
-    case Repo.insert(Petacular.Pet.edit_changeset(params, pet)) do
+    case Repo.update(Petacular.Pet.edit_changeset(params, pet)) do
       {:error, message} ->
         {:noreply, socket |> put_flash(:error, inspect(message))}
 

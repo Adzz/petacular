@@ -2,12 +2,12 @@ import Config
 
 # Configure your database
 config(:petacular, Petacular.Repo,
-  username: "petacular_user",
-  password: "petacular_123",
+  username: "postgres",
+  password: "postgres",
   hostname: "localhost",
   database: "petacular_dev",
   show_sensitive_data_on_connection_error: true,
-  port: 54321,
+  port: 5432,
   pool_size: 10
 )
 

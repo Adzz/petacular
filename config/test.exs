@@ -6,12 +6,12 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config(:petacular, Petacular.Repo,
-  username: "petacular_user",
-  password: "petacular_123",
+  username: "postgres",
+  password: "postgres",
   hostname: "localhost",
   database: "petacular_test",
   show_sensitive_data_on_connection_error: true,
-  port: 54321,
+  port: 5432,
   pool_size: 10,
   pool: Ecto.Adapters.SQL.Sandbox
 )

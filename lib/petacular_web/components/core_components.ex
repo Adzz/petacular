@@ -567,6 +567,32 @@ defmodule PetacularWeb.CoreComponents do
 
   ## JS Commands
 
+  @doc """
+  If you have a modal with an update form in it and it auto-focuses when it opens to the first form
+  field it clears the field which is confusing to a user. It does this because the FE is the source
+  of truth for the form state and so liveview basically doesn't know what the value should be as
+  soon as you focus into it. I feel like it shouldn't do this but I don't have time to investigate
+  further.
+
+  However we do want to focus into the modal so that the "focus wrap" takes effect and we
+  prevent tabbing through background items. So this function lets us choose where to focus.
+
+  (My current recommendation is to focus on the X close button).
+  """
+  def show_modal_focus_on(js \\ %JS{}, id, focus_id)
+      when is_binary(id)
+      when is_binary(focus_id) do
+    js
+    |> JS.show(to: "##{id}")
+    |> JS.show(
+      to: "##{id}-bg",
+      transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
+    )
+    |> show("##{id}-container")
+    |> JS.add_class("overflow-hidden", to: "body")
+    |> JS.focus(to: "##{focus_id}")
+  end
+
   def show(js \\ %JS{}, selector) do
     JS.show(js,
       to: selector,
